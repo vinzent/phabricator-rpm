@@ -36,11 +36,21 @@ Requires:       phabricator-arcanist = %{version_arcanist}
 Requires:       phabricator-libphutil = %{version_libphutil}
 
 %if 0%{?rhel} && 0%{?rhel} <= 6
-Requires: chkconfig initscripts mysql-server
+Requires:       chkconfig initscripts
 %else
 BuildRequires:  systemd
-Requires:       mariadb-server
 %{?systemd_requires}
+%endif
+
+%if 0%{?rhel} && 0%{?rhel} <= 6
+Requires:       mysql-server
+Requires:       php-mysql
+%elseif 0%{?rhel} && 0%{?rhel} == 7
+Requires:       mariadb-server
+Requires:       php-mysql
+%else
+Requires:       mariadb-server
+Requires:       php-mysqlnd
 %endif
 
 %description
