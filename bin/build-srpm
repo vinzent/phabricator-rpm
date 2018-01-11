@@ -1,9 +1,25 @@
 #!/bin/sh
 
+set -e
+set -u
+set -o pipefail
+
+cleanup() {
+  exitcode=$?
+
+  if [ "$exitcode" != "0" ]; then
+    echo "ERROR: unsuccessful exitcode: $exitcode" >&2
+  fi
+
+  exit $exitcode
+}
+
+trap cleanup EXIT
+
 
 ( 
   cd SOURCES;
   spectool -g ../phabricator.spec
 ) 
 
-rpmbuild -bs --undefine dist --define "_topdir $(pwd)" phabricator.spec
+rpmbuild -bs --undefine dist --define "_sourcedir $(pwd)/SOURCES" --define "_srcrpmdir $(pwd)/SRPMS" phabricator.spec
