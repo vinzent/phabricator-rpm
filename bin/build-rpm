@@ -4,7 +4,7 @@ set -e
 set -u
 set -o pipefail
 
-SRCRPMDIR=${1:-$(pwd)/SRPMS}
+RPMDIR=${1:-$(pwd)/RPMS}
 
 cleanup() {
   exitcode=$?
@@ -24,8 +24,8 @@ trap cleanup EXIT
 ) 
 
 rpmbuild \
-  -bs \
+  -bb \
   --undefine dist \
   --define "_sourcedir $(pwd)/SOURCES" \
-  --define "_srcrpmdir ${SRCRPMDIR}" \
+  --define "_rpmdir ${RPMDIR}" \
   phabricator.spec
