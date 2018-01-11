@@ -6,4 +6,4 @@
   spectool -g ../phabricator.spec
 ) 
 
-rpmbuild -bs --define "_topdir $(pwd)" phabricator.spec
+rpmbuild -bs --undefine dist --define "_topdir $(pwd)" phabricator.spec
