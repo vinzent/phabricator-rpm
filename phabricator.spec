@@ -43,19 +43,35 @@ BuildRequires:  systemd
 %endif
 
 %if 0%{?rhel} && 0%{?rhel} <= 6
-Requires:       mysql-server
 Requires:       php-mysql
 %elseif 0%{?rhel} && 0%{?rhel} == 7
-Requires:       mariadb-server
 Requires:       php-mysql
 %else
-Requires:       mariadb-server
 Requires:       php-mysqlnd
 %endif
 
 %description
 Phabricator is an open source collection of web applications which help
 software companies build better software.
+
+%package standalone-server
+Summary:        Run phabricator all-in-one on a single server
+Version:        %{version_phabricator}
+Requires:       phabricator-libphutil = %{version_libphutil}
+Requires:       phabricator-arcanist = %{version_arcanist}
+Requires:       phabricator = %{version_phabricator}
+AutoReq:        no
+
+%if 0%{?rhel} && 0%{?rhel} <= 6
+Requires:       mysql-server
+%elseif 0%{?rhel} && 0%{?rhel} == 7
+Requires:       mariadb-server
+%else
+Requires:       mariadb-server
+%endif
+
+%description standalone-server
+Install phabricator to run all-in-one on one server.
 
 %package arcanist
 Summary:        command-line interface to Phabricator
@@ -102,9 +118,9 @@ for dir in libphutil arcanist phabricator; do
   cp -r ${dir}-* ${RPM_BUILD_ROOT}/opt/phacility/$dir
 done
 
-mkdir -p ${RPM_BUILD_ROOT}/var/lib/phabricator
-mkdir ${RPM_BUILD_ROOT}/var/lib/phabricator/files
-mkdir ${RPM_BUILD_ROOT}/var/lib/phabricator/repo
+mkdir -p ${RPM_BUILD_ROOT}/var/opt/phabricator
+mkdir ${RPM_BUILD_ROOT}/var/opt/phabricator/files
+mkdir ${RPM_BUILD_ROOT}/var/opt/phabricator/repo
 
 %if 0%{?rhel} && 0%{?rhel} <= 6
 mkdir -p ${RPM_BUILD_ROOT}%{_initddir}
@@ -131,7 +147,7 @@ rm -rf $RPM_BUILD_ROOT
 %pre
 getent group phabricator >/dev/null || groupadd -r phabricator
 getent passwd phabricator >/dev/null || \
-    useradd -r -g phabricator -d /var/lib/phabricator -s /sbin/nologin \
+    useradd -r -g phabricator -d /var/opt/phabricator -s /sbin/nologin \
     -c "Daemon user for Phabricator" phabricator
 
 %post
@@ -143,8 +159,8 @@ getent passwd phabricator >/dev/null || \
 
 CFG=/opt/phacility/phabricator/bin/config
 if ! [ -e /opt/phacility/phabricator/conf/local/local.json ]; then
-  $CFG set repository.default-local-path /var/lib/phabricator/repo
-  $CFG set storage.local-disk.path /var/lib/phabricator/files
+  $CFG set repository.default-local-path /var/opt/phabricator/repo
+  $CFG set storage.local-disk.path /var/opt/phabricator/files
   $CFG set storage.upload-size-limit 10M
   $CFG set pygments.enabled true
   $CFG set phabricator.base-uri http://$(hostname -f)/
@@ -187,9 +203,9 @@ fi
 %endif
 
 %attr(0440,-,-) /etc/sudoers.d/phabricator
-%dir %attr(0750, phabricator, phabricator)/var/lib/phabricator
-%dir %attr(2750, phabricator, phabricator) /var/lib/phabricator/repo
-%dir %attr(0700, apache, apache) /var/lib/phabricator/files
+%dir %attr(0750, phabricator, phabricator)/var/opt/phabricator
+%dir %attr(2750, phabricator, phabricator) /var/opt/phabricator/repo
+%dir %attr(0700, apache, apache) /var/opt/phabricator/files
 %dir %attr(0750, phabricator, phabricator)/var/log/phabricator
 
 %files arcanist
