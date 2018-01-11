@@ -30,7 +30,7 @@ Source6:        phabricator.unit
 
 BuildRequires:  git
 Requires:       shadow-utils
-Requires:       git php php-cli php-mysql php-process php-devel php-gd python-pygments
+Requires:       git php php-cli php-process php-devel php-gd python-pygments
 Requires:       php-pecl-apc php-pecl-json php-mbstring sudo
 Requires:       phabricator-arcanist = %{version_arcanist}
 Requires:       phabricator-libphutil = %{version_libphutil}
