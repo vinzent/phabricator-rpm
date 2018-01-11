@@ -1,0 +1,9 @@
+#!/bin/sh
+
+
+( 
+  cd SOURCES;
+  spectool -g ../phabricator.spec
+) 
+
+rpmbuild -bs --define "_topdir $(pwd)" phabricator.spec
