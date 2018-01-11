@@ -96,8 +96,6 @@ mkdir -p ${RPM_BUILD_ROOT}/var/lib/phabricator
 mkdir ${RPM_BUILD_ROOT}/var/lib/phabricator/files
 mkdir ${RPM_BUILD_ROOT}/var/lib/phabricator/repo
 
-env
-
 %if 0%{?rhel} && 0%{?rhel} <= 6
 mkdir -p ${RPM_BUILD_ROOT}%{_initddir}
 cp %{SOURCE3} \
