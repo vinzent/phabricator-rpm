@@ -208,6 +208,8 @@ fi
 %dir %attr(0700, apache, apache) /var/opt/phabricator/files
 %dir %attr(0750, phabricator, phabricator)/var/log/phabricator
 
+%files standalone-server
+
 %files arcanist
 /opt/phacility/arcanist
 
