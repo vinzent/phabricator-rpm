@@ -13,15 +13,18 @@
 %if 0%{?rhel} && 0%{?rhel} <= 6
 # EL6 requires
 %global php_requires php php-cli php-process php-gd php-pecl-apc php-pecl-json php-mbstring php-mysql
+%global php_requires_arcanist php-cli
 %global mysqld_requires mysql-server
 %else
 %if 0%{?rhel} && 0%{?rhel} == 7
 # EL7 requires
-%global rh-php71-php_requires rh-php71-php rh-php71-php-cli rh-php71-php-process rh-php71-php-gd rh-php71-php-pecl-apcu rh-php71-php-json rh-php71-php-mbstring rh-php71-php-mysqlnd
+%global php_requires rh-php71-php rh-php71-php-cli rh-php71-php-process rh-php71-php-gd rh-php71-php-pecl-apcu rh-php71-php-json rh-php71-php-mbstring rh-php71-php-mysqlnd
+%global php_requires_arcanist rh-php71-php-cli
 %global mysqld_requires mariadb-server
 %else
 # Fedora >= 26 requires
 %global php_requires php php-cli php-process php-gd php-pecl-apcu php-json php-mbstring php-mysqlnd
+%global php_requires_arcanist php-cli
 %global mysqld_requires mariadb-server
 %endif
 %endif
@@ -78,7 +81,7 @@ Install phabricator to run all-in-one on one server.
 %package arcanist
 Summary:        command-line interface to Phabricator
 Version:        %{version_arcanist}
-Requires:       php-cli
+Requires:       %{php_requires_arcanist}
 Requires:       phabricator-libphutil = %{version_libphutil}
 AutoReq:        no
 
