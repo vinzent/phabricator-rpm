@@ -10,9 +10,20 @@
 %global commit_phabricator 53b4882b8073439f00502587e9979f93a56e232d
 %global shortcommit_phabricator %(c=%{commit_phabricator}; echo ${c:0:7})
 
+%if 0%{?rhel} && 0%{?rhel} <= 6
+# EL6 requires
+%global php_requires php php-cli php-process php-gd php-pecl-apc php-pecl-json php-mbstring php-mysql
+%elseif 0%{?rhel} && 0%{?rhel} == 7
+# EL7 requires
+%global rh-php71-php_requires rh-php71-php rh-php71-php-cli rh-php71-php-process rh-php71-php-gd rh-php71-php-pecl-apcu rh-php71-php-json rh-php71-php-mbstring rh-php71-php-mysqlnd
+%else
+# Fedora >= 26 requires
+%global php_requires php php-cli php-process php-gd php-pecl-apcu php-json php-mbstring php-mysqlnd
+%endif
+
 Name:           phabricator
 Version:        %{version_phabricator}
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        collection of web applications to help build software
 BuildArch:      noarch
 AutoReq:        no
@@ -29,25 +40,18 @@ Source5:        phabricator.sudoers
 Source6:        phabricator.unit
 
 BuildRequires:  git
-Requires:       shadow-utils
-Requires:       git php php-cli php-process php-devel php-gd python-pygments
-Requires:       php-pecl-apc php-pecl-json php-mbstring sudo
+Requires:       shadow-utils git sudo
+Requires:       %{php_requires}
+Requires:       python-pygments
 Requires:       phabricator-arcanist = %{version_arcanist}
 Requires:       phabricator-libphutil = %{version_libphutil}
 
+# Init systemd
 %if 0%{?rhel} && 0%{?rhel} <= 6
 Requires:       chkconfig initscripts
 %else
 BuildRequires:  systemd
 %{?systemd_requires}
-%endif
-
-%if 0%{?rhel} && 0%{?rhel} <= 6
-Requires:       php-mysql
-%elseif 0%{?rhel} && 0%{?rhel} == 7
-Requires:       php-mysql
-%else
-Requires:       php-mysqlnd
 %endif
 
 %description
