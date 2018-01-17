@@ -6,8 +6,8 @@
 %global commit_arcanist 08674ca997b62b695f773c32f0c20e51128bc053
 %global shortcommit_arcanist %(c=%{commit_arcanist}; echo ${c:0:7})
 
-%global version_phabricator 2018.1
-%global commit_phabricator f9d9125f93ac3c274085f2b037f1e609106ecba0
+%global version_phabricator 2018.2
+%global commit_phabricator 53b4882b8073439f00502587e9979f93a56e232d
 %global shortcommit_phabricator %(c=%{commit_phabricator}; echo ${c:0:7})
 
 Name:           phabricator
