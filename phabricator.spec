@@ -124,9 +124,9 @@ for dir in libphutil arcanist phabricator; do
   cp -r ${dir}-* ${RPM_BUILD_ROOT}/opt/phacility/$dir
 done
 
-mkdir -p ${RPM_BUILD_ROOT}/var/opt/phabricator
-mkdir ${RPM_BUILD_ROOT}/var/opt/phabricator/files
-mkdir ${RPM_BUILD_ROOT}/var/opt/phabricator/repo
+mkdir -p ${RPM_BUILD_ROOT}/var/opt/lib/phabricator
+mkdir ${RPM_BUILD_ROOT}/var/opt/lib/phabricator/files
+mkdir ${RPM_BUILD_ROOT}/var/opt/lib/phabricator/repo
 
 %if 0%{?rhel} && 0%{?rhel} <= 6
 mkdir -p ${RPM_BUILD_ROOT}%{_initddir}
@@ -153,7 +153,7 @@ rm -rf $RPM_BUILD_ROOT
 %pre
 getent group phabricator >/dev/null || groupadd -r phabricator
 getent passwd phabricator >/dev/null || \
-    useradd -r -g phabricator -d /var/opt/phabricator -s /sbin/nologin \
+    useradd -r -g phabricator -d /var/opt/lib/phabricator -s /sbin/nologin \
     -c "Daemon user for Phabricator" phabricator
 
 %post standalone-server
@@ -165,8 +165,8 @@ getent passwd phabricator >/dev/null || \
 
 CFG=/opt/phacility/phabricator/bin/config
 if ! [ -e /opt/phacility/phabricator/conf/local/local.json ]; then
-  $CFG set repository.default-local-path /var/opt/phabricator/repo
-  $CFG set storage.local-disk.path /var/opt/phabricator/files
+  $CFG set repository.default-local-path /var/opt/lib/phabricator/repo
+  $CFG set storage.local-disk.path /var/opt/lib/phabricator/files
   $CFG set storage.upload-size-limit 10M
   $CFG set pygments.enabled true
   $CFG set phabricator.base-uri http://$(hostname -f)/
@@ -201,7 +201,7 @@ fi
 %files
 %defattr(-,root,root,-)
 /opt/phacility/phabricator
-%dir /var/opt/phabricator
+%dir /var/opt/lib/phabricator
 %dir %attr(0750, phabricator, phabricator) /var/log/phabricator
 
 
@@ -212,8 +212,8 @@ fi
 %else
 %{_unitdir}/phabricator.service
 %endif
-%dir %attr(2750, phabricator, phabricator) /var/opt/phabricator/repo
-%dir %attr(0700, apache, apache) /var/opt/phabricator/files
+%dir %attr(2750, phabricator, phabricator) /var/opt/lib/phabricator/repo
+%dir %attr(0700, apache, apache) /var/opt/lib/phabricator/files
 
 
 %files arcanist
