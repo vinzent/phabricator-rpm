@@ -19,7 +19,7 @@
 %if 0%{?rhel} && 0%{?rhel} == 7
 # EL7 requires
 %global php_requires rh-php71-php rh-php71-php-cli rh-php71-php-process rh-php71-php-gd rh-php71-php-pecl-apcu rh-php71-php-json rh-php71-php-mbstring rh-php71-php-mysqlnd
-%global php_requires_arcanist rh-php71-php-cli
+%global php_requires_arcanist php-cli
 %global mysqld_requires mariadb-server
 %else
 # Fedora >= 26 requires
@@ -32,7 +32,7 @@
 Name:           phabricator
 Version:        %{version_phabricator}
 Release:        2%{?dist}
-Summary:        collection of web applications to help build software
+Summary:        Phabricator core - just the tool without dependencies.
 BuildArch:      noarch
 AutoReq:        no
 
@@ -47,13 +47,23 @@ Source4:        phabricator.httpd.conf
 Source5:        phabricator.sudoers
 Source6:        phabricator.unit
 
-BuildRequires:  git
-Requires:       shadow-utils git sudo
-Requires:       %{php_requires}
-Requires:       python-pygments
 Requires:       phabricator-arcanist = %{version_arcanist}
 Requires:       phabricator-libphutil = %{version_libphutil}
 
+
+%description
+Phabricator is an open source collection of web applications which help
+software companies build better software.
+
+This is the just the code withouth any required dependencies.
+
+%package standalone-server
+Summary:        Run phabricator all-in-one on a single server
+Version:        %{version_phabricator}
+Requires:       %{mysqld_requires}
+Requires:       %{php_requires}
+Requires:       shadow-utils
+Requires:       python-pygments
 # Init systemd
 %if 0%{?rhel} && 0%{?rhel} <= 6
 Requires:       chkconfig initscripts
@@ -61,15 +71,6 @@ Requires:       chkconfig initscripts
 BuildRequires:  systemd
 %{?systemd_requires}
 %endif
-
-%description
-Phabricator is an open source collection of web applications which help
-software companies build better software.
-
-%package standalone-server
-Summary:        Run phabricator all-in-one on a single server
-Version:        %{version_phabricator}
-Requires:       %{mysqld_requires}
 Requires:       phabricator-libphutil = %{version_libphutil}
 Requires:       phabricator-arcanist = %{version_arcanist}
 Requires:       phabricator = %{version_phabricator}
@@ -155,7 +156,7 @@ getent passwd phabricator >/dev/null || \
     useradd -r -g phabricator -d /var/opt/phabricator -s /sbin/nologin \
     -c "Daemon user for Phabricator" phabricator
 
-%post
+%post standalone-server
 %if 0%{?rhel} && 0%{?rhel} <= 6
 /sbin/chkconfig --add phabricator
 %else
@@ -187,7 +188,7 @@ if ! groupmems -g phabricator -l | grep -q apache; then
 fi
 
 
-%preun
+%preun standalone-server
 %if 0%{?rhel} && 0%{?rhel} <= 6
 if [ $1 -eq 0 ] ; then
     /sbin/service phabricator stop >/dev/null 2>&1
@@ -200,20 +201,20 @@ fi
 %files
 %defattr(-,root,root,-)
 /opt/phacility/phabricator
+%dir /var/opt/phabricator
+%dir %attr(0750, phabricator, phabricator) /var/log/phabricator
 
+
+%files standalone-server
+%attr(0440,-,-) /etc/sudoers.d/phabricator
 %if 0%{?rhel} && 0%{?rhel} <= 6
 %attr(0755,-,-) %{_initddir}/phabricator
 %else
 %{_unitdir}/phabricator.service
 %endif
-
-%attr(0440,-,-) /etc/sudoers.d/phabricator
-%dir %attr(0750, phabricator, phabricator)/var/opt/phabricator
 %dir %attr(2750, phabricator, phabricator) /var/opt/phabricator/repo
 %dir %attr(0700, apache, apache) /var/opt/phabricator/files
-%dir %attr(0750, phabricator, phabricator)/var/log/phabricator
 
-%files standalone-server
 
 %files arcanist
 /opt/phacility/arcanist
