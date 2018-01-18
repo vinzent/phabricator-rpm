@@ -1,12 +1,14 @@
 [Unit]
 Description=Phabricator Daemons
-Requires=mariadb.service
-After=mariadb.service
+# Requires=mariadb.service
+# After=mariadb.service
 
 [Service]
 Type=forking
-ExecStart=/opt/phacility/phabricator/bin/phd start
-ExecStop=/opt/phacility/phabricator/bin/phd stop
+# Phabricator requires git-http-backend in PATH
+Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/usr/libexec/git-core"
+ExecStart=/opt/phab/phabricator/bin/phd start
+ExecStop=/opt/phab/phabricator/bin/phd stop
 User=phabricator
 Restart=on-failure
 

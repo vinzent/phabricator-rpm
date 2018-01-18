@@ -20,7 +20,7 @@ trap cleanup EXIT
 
 ( 
   cd SOURCES;
-  spectool -g ../phabricator.spec
+  spectool -g ../phab.spec
 ) 
 
 rpmbuild \
@@ -28,4 +28,4 @@ rpmbuild \
   --undefine dist \
   --define "_sourcedir $(pwd)/SOURCES" \
   --define "_srcrpmdir ${SRCRPMDIR}" \
-  phabricator.spec
+  phab.spec
