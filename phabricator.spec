@@ -31,7 +31,7 @@
 
 Name:           phabricator
 Version:        %{version_phabricator}
-Release:        2%{?dist}
+Release:        2.0.alpha1%{?dist}
 Summary:        Phabricator core - just the tool without dependencies.
 BuildArch:      noarch
 AutoReq:        no
