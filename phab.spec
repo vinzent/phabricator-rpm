@@ -36,7 +36,7 @@
 
 Name:           phab
 Version:        %{version_phabricator}
-Release:        0.0.alpha3%{?dist}
+Release:        0.0.alpha4%{?dist}
 Summary:        Phabricator meta-package
 BuildArch:      noarch
 AutoReq:        no
@@ -149,6 +149,7 @@ mkdir -p ${DEST_VAR}/files  ${DEST_VAR}/diffusion
 # phabricator calls git and svn which in turn call ssh 
 # and ssh requires $HOME/.ssh
 mkdir ${DEST_VAR}/.ssh
+mkdir ${DEST_VAR}/.subversion
 
 
 mkdir -p ${RPM_BUILD_ROOT}%{prefix_log}/phd
@@ -247,6 +248,7 @@ fi
 %defattr(-,root,root,-)
 %{prefix}/phabricator
 %dir %attr(0750, phabricator, phabricator) %{prefix_var}/.ssh
+%dir %attr(0750, phabricator, phabricator) %{prefix_var}/.subversion
 %dir %attr(0750, phabricator, phabricator) %{prefix_var}/phd
 %dir %attr(0750, phabricator, phabricator) %{prefix_log}/phd
 %dir %attr(0750, phabricator, phabricator) %{prefix_run}/phd
