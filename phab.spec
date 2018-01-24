@@ -36,7 +36,7 @@
 
 Name:           phab
 Version:        %{version_phabricator}
-Release:        0.0.alpha2%{?dist}
+Release:        0.0.alpha3%{?dist}
 Summary:        Phabricator meta-package
 BuildArch:      noarch
 AutoReq:        no
@@ -146,6 +146,15 @@ cp -r phabricator-%{commit_phabricator} ${DEST}/phabricator
 DEST_VAR=${RPM_BUILD_ROOT}%{prefix_var}
 mkdir -p ${DEST_VAR}/files  ${DEST_VAR}/diffusion
 
+# phabricator calls git and svn which in turn call ssh 
+# and ssh requires $HOME/.ssh
+mkdir ${DEST_VAR}/.ssh
+
+
+mkdir -p ${RPM_BUILD_ROOT}%{prefix_log}/phd
+
+mkdir -p ${RPM_BUILD_ROOT}%{prefix_run}/phd
+
 %if 0%{?rhel} && 0%{?rhel} <= 6
 mkdir -p ${RPM_BUILD_ROOT}%{_initddir}
 cp %{SOURCE3} \
@@ -156,9 +165,6 @@ cp %{SOURCE6} \
   ${RPM_BUILD_ROOT}%{_unitdir}/phabricator.service
 %endif
 
-mkdir -p ${RPM_BUILD_ROOT}%{prefix_log}/phd
-
-mkdir -p ${RPM_BUILD_ROOT}%{prefix_run}/phd
 
 mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/sudoers.d
 cp %{SOURCE5} \
@@ -240,7 +246,11 @@ fi
 %files phabricator
 %defattr(-,root,root,-)
 %{prefix}/phabricator
+%dir %attr(0750, phabricator, phabricator) %{prefix_var}/.ssh
+%dir %attr(0750, phabricator, phabricator) %{prefix_var}/phd
 %dir %attr(0750, phabricator, phabricator) %{prefix_log}/phd
+%dir %attr(0750, phabricator, phabricator) %{prefix_run}/phd
+
 %if 0%{?rhel} && 0%{?rhel} <= 6
 %attr(0755,-,-) %{_initddir}/phabricator
 %else
