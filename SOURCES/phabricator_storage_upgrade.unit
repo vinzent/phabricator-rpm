@@ -1,0 +1,13 @@
+[Unit]
+Description=Phabricator storage upgrade namespace %I
+Conflicts=phabricator.service
+Before=phabricator.service
+DefaultInstance=phabricator
+
+[Service]
+Type=oneshot
+ExecStart=/opt/phab/phabricator/bin/storage upgrade --force --namespace %i
+User=phabricator
+
+[Install]
+WantedBy=multi-user.target

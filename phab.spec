@@ -36,7 +36,7 @@
 
 Name:           phab
 Version:        %{version_phabricator}
-Release:        0.0.alpha4%{?dist}
+Release:        0.0.alpha5%{?dist}
 Summary:        Phabricator meta-package
 BuildArch:      noarch
 AutoReq:        no
@@ -51,6 +51,7 @@ Source3:        phabricator.init
 Source4:        phabricator.httpd.conf
 Source5:        phabricator.sudoers
 Source6:        phabricator.unit
+Source7:        phabricator_storage_upgrade.unit
 
 Requires:       phab-arcanist = %{version_arcanist}
 Requires:       phab-libphutil = %{version_libphutil}
@@ -164,6 +165,8 @@ cp %{SOURCE3} \
 mkdir -p ${RPM_BUILD_ROOT}%{_unitdir}
 cp %{SOURCE6} \
   ${RPM_BUILD_ROOT}%{_unitdir}/phabricator.service
+cp %{SOURCE7} \
+  ${RPM_BUILD_ROOT}%{_unitdir}/phabricator_storage_upgrade@.service
 %endif
 
 
@@ -187,7 +190,7 @@ getent passwd phabricator >/dev/null || \
 %if 0%{?rhel} && 0%{?rhel} <= 6
 /sbin/chkconfig --add phabricator
 %else
-%systemd_post phabricator.service
+%systemd_post phabricator.service phabricator_storage_upgrade@.service
 %endif
 
 CFG=%{prefix}/phabricator/bin/config
@@ -212,13 +215,17 @@ fi
 %if 0%{?rhel} && 0%{?rhel} <= 6
   echo "nothing to do here in preun"
 %else
-%systemd_preun phabricator.service
+%systemd_preun phabricator.service phabricator_storage_upgrade@.service 
 %endif
 
 %postun phabricator
 %if 0%{?rhel} && 0%{?rhel} <= 6
   echo "nothing to do here in preun"
 %else
+# @todo starting phabricator_storage_upgrade@.service will stop
+#   phabricator.service. needs more sophisticated scripting to upgrade
+#   the storage without phabricator running
+%systemd_postun phabricator_storage_upgrade@.service
 %systemd_postun_with_restart phabricator.service
 %endif
 
@@ -257,6 +264,7 @@ fi
 %attr(0755,-,-) %{_initddir}/phabricator
 %else
 %{_unitdir}/phabricator.service
+%{_unitdir}/phabricator_storage_upgrade@.service
 %endif
 
 
