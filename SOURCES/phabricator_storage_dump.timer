@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Phabricator storage dump namespace %I daily
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+DefaultInstance=phabricator

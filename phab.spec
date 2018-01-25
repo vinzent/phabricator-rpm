@@ -53,6 +53,7 @@ Source5:        phabricator.sudoers
 Source6:        phabricator.unit
 Source7:        phabricator_storage_upgrade.unit
 Source8:        phabricator_storage_dump.unit
+Source9:        phabricator_storage_dump.timer
 
 Requires:       phab-arcanist = %{version_arcanist}
 Requires:       phab-libphutil = %{version_libphutil}
@@ -170,6 +171,8 @@ cp %{SOURCE7} \
   ${RPM_BUILD_ROOT}%{_unitdir}/phabricator_storage_upgrade@.service
 cp %{SOURCE8} \
   ${RPM_BUILD_ROOT}%{_unitdir}/phabricator_storage_dump@.service
+cp %{SOURCE9} \
+  ${RPM_BUILD_ROOT}%{_unitdir}/phabricator_storage_dump@.timer
 %endif
 
 
@@ -193,7 +196,7 @@ getent passwd phabricator >/dev/null || \
 %if 0%{?rhel} && 0%{?rhel} <= 6
 /sbin/chkconfig --add phabricator
 %else
-%systemd_post phabricator.service phabricator_storage_upgrade@.service phabricator_storage_dump@.service
+%systemd_post phabricator.service phabricator_storage_upgrade@.service phabricator_storage_dump@.service phabricator_storage_dump@.timer
 %endif
 
 CFG=%{prefix}/phabricator/bin/config
@@ -218,7 +221,7 @@ fi
 %if 0%{?rhel} && 0%{?rhel} <= 6
   echo "nothing to do here in preun"
 %else
-%systemd_preun phabricator.service phabricator_storage_upgrade@.service phabricator_storage_upgrade@.service
+%systemd_preun phabricator.service phabricator_storage_upgrade@.service phabricator_storage_dump@.service phabricator_storage_dump@.timer
 %endif
 
 %postun phabricator
@@ -228,7 +231,7 @@ fi
 # @todo starting phabricator_storage_upgrade@.service will stop
 #   phabricator.service. needs more sophisticated scripting to upgrade
 #   the storage without phabricator running
-%systemd_postun phabricator_storage_upgrade@.service phabricator_storage_upgrade@.service
+%systemd_postun phabricator_storage_upgrade@.service phabricator_storage_dump@.service phabricator_storage_dump@.timer
 %systemd_postun_with_restart phabricator.service
 %endif
 
@@ -270,6 +273,7 @@ fi
 %{_unitdir}/phabricator.service
 %{_unitdir}/phabricator_storage_upgrade@.service
 %{_unitdir}/phabricator_storage_dump@.service
+%{_unitdir}/phabricator_storage_dump@.timer
 %endif
 
 
