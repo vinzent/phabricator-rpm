@@ -1,0 +1,9 @@
+/var/log/phab/phd/daemon.log {
+  weekly
+  rotate 12
+  notifempty
+  delaycompress
+  notifempty
+  missingok
+  copytruncate
+}
