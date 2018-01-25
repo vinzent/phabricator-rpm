@@ -3,7 +3,7 @@ Description=Phabricator storage dump namespace %I
 
 [Service]
 Type=oneshot
-ExecStart=/opt/phab/phabricator/bin/storage --namespace %i --compress --output /var/opt/phab/storage_dump/%i.sql.gz --overwrite
+ExecStart=/opt/phab/phabricator/bin/storage dump --namespace %i --compress --output /var/opt/phab/storage_dump/%i.sql.gz --overwrite
 User=phabricator
 
 [Install]
