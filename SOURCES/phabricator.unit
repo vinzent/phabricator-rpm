@@ -10,6 +10,7 @@ Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/usr/libexec
 ExecStart=/opt/phab/phabricator/bin/phd start
 ExecStop=/opt/phab/phabricator/bin/phd stop
 User=phabricator
+UMask=0027
 Restart=on-failure
 
 [Install]
