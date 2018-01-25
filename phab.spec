@@ -36,7 +36,7 @@
 
 Name:           phab
 Version:        %{version_phabricator}
-Release:        0.0.alpha7%{?dist}
+Release:        0.0.alpha8%{?dist}
 Summary:        Phabricator meta-package
 BuildArch:      noarch
 AutoReq:        no
@@ -233,28 +233,21 @@ fi
 %if 0%{?rhel} && 0%{?rhel} <= 6
   echo "nothing to do here in preun"
 %else
-# @todo starting phabricator_storage_upgrade@.service will stop
-#   phabricator.service. needs more sophisticated scripting to upgrade
-#   the storage without phabricator running
-%systemd_postun phabricator_storage_upgrade@.service phabricator_storage_dump@.service phabricator_storage_dump@.timer
-%systemd_postun_with_restart phabricator.service
-%endif
+systemctl daemon-reload >/dev/null 2>&1 || :
 
-%post standalone-server
-# Httpd needs access to the repo folder
-if ! groupmems -g phabricator -l | grep -q apache; then
-  groupmems -g phabricator -a apache
+if [ $1 -ge 1 ]; then
+  # Package upgrade, not uninstall
+  phabricator_state_before_storage_upgrade=$(systemctl is-active phabricator.service 2>/dev/null || :)
+
+  # this will stop phabricator.service if it is currently running
+  systemctl start phabricator_storage_upgrade@phabricator.service >/dev/null 2>&1 || :
+
+  if [ "$phabricator_state_before_storage_upgrade=" = "active" ]; then
+    systemctl start phabricator.service >/dev/null 2>&1 || :
+  fi
 fi
 
-
-%preun standalone-server
-%if 0%{?rhel} && 0%{?rhel} <= 6
-if [ $1 -eq 0 ] ; then
-    /sbin/service phabricator stop >/dev/null 2>&1
-    /sbin/chkconfig --del phabricator
-fi
-%else
-%systemd_preun phabricator.service
+%systemd_postun storage_dump@.service phabricator_storage_dump@.timer
 %endif
 
 %files
