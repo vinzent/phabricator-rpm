@@ -36,7 +36,7 @@
 
 Name:           phab
 Version:        %{version_phabricator}
-Release:        0.0.alpha5%{?dist}
+Release:        0.0.alpha6%{?dist}
 Summary:        Phabricator meta-package
 BuildArch:      noarch
 AutoReq:        no
@@ -52,6 +52,7 @@ Source4:        phabricator.httpd.conf
 Source5:        phabricator.sudoers
 Source6:        phabricator.unit
 Source7:        phabricator_storage_upgrade.unit
+Source8:        phabricator_storage_dump.unit
 
 Requires:       phab-arcanist = %{version_arcanist}
 Requires:       phab-libphutil = %{version_libphutil}
@@ -145,7 +146,7 @@ cp -r arcanist-%{commit_arcanist} ${DEST}/arcanist
 cp -r phabricator-%{commit_phabricator} ${DEST}/phabricator
 
 DEST_VAR=${RPM_BUILD_ROOT}%{prefix_var}
-mkdir -p ${DEST_VAR}/files  ${DEST_VAR}/diffusion
+mkdir -p ${DEST_VAR}/files  ${DEST_VAR}/diffusion ${DEST_VAR}/storage_dump
 
 # phabricator calls git and svn which in turn call ssh 
 # and ssh requires $HOME/.ssh
@@ -167,6 +168,8 @@ cp %{SOURCE6} \
   ${RPM_BUILD_ROOT}%{_unitdir}/phabricator.service
 cp %{SOURCE7} \
   ${RPM_BUILD_ROOT}%{_unitdir}/phabricator_storage_upgrade@.service
+cp %{SOURCE8} \
+  ${RPM_BUILD_ROOT}%{_unitdir}/phabricator_storage_dump@.service
 %endif
 
 
@@ -190,7 +193,7 @@ getent passwd phabricator >/dev/null || \
 %if 0%{?rhel} && 0%{?rhel} <= 6
 /sbin/chkconfig --add phabricator
 %else
-%systemd_post phabricator.service phabricator_storage_upgrade@.service
+%systemd_post phabricator.service phabricator_storage_upgrade@.service phabricator_storage_dump@.service
 %endif
 
 CFG=%{prefix}/phabricator/bin/config
@@ -215,7 +218,7 @@ fi
 %if 0%{?rhel} && 0%{?rhel} <= 6
   echo "nothing to do here in preun"
 %else
-%systemd_preun phabricator.service phabricator_storage_upgrade@.service 
+%systemd_preun phabricator.service phabricator_storage_upgrade@.service phabricator_storage_upgrade@.service
 %endif
 
 %postun phabricator
@@ -225,7 +228,7 @@ fi
 # @todo starting phabricator_storage_upgrade@.service will stop
 #   phabricator.service. needs more sophisticated scripting to upgrade
 #   the storage without phabricator running
-%systemd_postun phabricator_storage_upgrade@.service
+%systemd_postun phabricator_storage_upgrade@.service phabricator_storage_upgrade@.service
 %systemd_postun_with_restart phabricator.service
 %endif
 
@@ -256,6 +259,7 @@ fi
 %{prefix}/phabricator
 %dir %attr(0750, phabricator, phabricator) %{prefix_var}/.ssh
 %dir %attr(0750, phabricator, phabricator) %{prefix_var}/.subversion
+%dir %attr(0750, phabricator, phabricator) %{prefix_var}/storage_dump
 %dir %attr(0750, phabricator, phabricator) %{prefix_var}/phd
 %dir %attr(0750, phabricator, phabricator) %{prefix_log}/phd
 %dir %attr(0750, phabricator, phabricator) %{prefix_run}/phd
@@ -265,6 +269,7 @@ fi
 %else
 %{_unitdir}/phabricator.service
 %{_unitdir}/phabricator_storage_upgrade@.service
+%{_unitdir}/phabricator_storage_dump@.service
 %endif
 
 

@@ -2,7 +2,6 @@
 Description=Phabricator storage upgrade namespace %I
 Conflicts=phabricator.service
 Before=phabricator.service
-DefaultInstance=phabricator
 
 [Service]
 Type=oneshot
@@ -11,3 +10,4 @@ User=phabricator
 
 [Install]
 WantedBy=multi-user.target
+DefaultInstance=phabricator
