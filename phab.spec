@@ -36,7 +36,7 @@
 
 Name:           phab
 Version:        %{version_phabricator}
-Release:        0.0.alpha6%{?dist}
+Release:        0.0.alpha7%{?dist}
 Summary:        Phabricator meta-package
 BuildArch:      noarch
 AutoReq:        no
@@ -54,6 +54,7 @@ Source6:        phabricator.unit
 Source7:        phabricator_storage_upgrade.unit
 Source8:        phabricator_storage_dump.unit
 Source9:        phabricator_storage_dump.timer
+Source10:       phabricator.logrotate
 
 Requires:       phab-arcanist = %{version_arcanist}
 Requires:       phab-libphutil = %{version_libphutil}
@@ -180,6 +181,10 @@ mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/sudoers.d
 cp %{SOURCE5} \
   ${RPM_BUILD_ROOT}%{_sysconfdir}/sudoers.d/phabricator
 
+mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/logrotate.d
+cp %{SOURCE10} \
+  ${RPM_BUILD_ROOT}%{_sysconfdir}/logrotate.d/phab-phabricator
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -260,6 +265,7 @@ fi
 %files phabricator
 %defattr(-,root,root,-)
 %{prefix}/phabricator
+%config(noreplace) %{_sysconfdir}/logrotate.d/phab-phabricator
 %dir %attr(0750, phabricator, phabricator) %{prefix_var}/.ssh
 %dir %attr(0750, phabricator, phabricator) %{prefix_var}/.subversion
 %dir %attr(0750, phabricator, phabricator) %{prefix_var}/storage_dump
