@@ -6,8 +6,8 @@
 %global commit_arcanist 886f6e6360ac6069ca8b8af12f69523deee6feda
 %global shortcommit_arcanist %(c=%{commit_arcanist}; echo ${c:0:7})
 
-%global version_phabricator 2018.3
-%global commit_phabricator 73439dad9d491b05ecc633f47c9f4b59a7346f6c
+%global version_phabricator 2018.4
+%global commit_phabricator 4bf1bc256308153482fb1fcb1100b3dc99637d04
 %global shortcommit_phabricator %(c=%{commit_phabricator}; echo ${c:0:7})
 
 %global prefix /opt/phab
@@ -36,7 +36,7 @@
 
 Name:           phab
 Version:        %{version_phabricator}
-Release:        0.0.alpha8%{?dist}
+Release:        0.1.alpha8%{?dist}
 Summary:        Phabricator meta-package
 BuildArch:      noarch
 AutoReq:        no
@@ -55,6 +55,7 @@ Source7:        phabricator_storage_upgrade.unit
 Source8:        phabricator_storage_dump.unit
 Source9:        phabricator_storage_dump.timer
 Source10:       phabricator.logrotate
+Source11:       phabricator_storage_upgrade_handler
 
 Requires:       phab-arcanist = %{version_arcanist}
 Requires:       phab-libphutil = %{version_libphutil}
@@ -66,20 +67,6 @@ Phabricator is an open source collection of web applications which help
 software companies build better software.
 
 This is the just the code withouth any required dependencies.
-
-%package standalone-server
-Summary:        Run phabricator all-in-one on a single server
-Version:        %{version_phabricator}
-Requires:       %{mysqld_requires}
-Requires:       %{php_requires}
-Requires:       python-pygments
-Requires:       phab-libphutil = %{version_libphutil}
-Requires:       phab-arcanist = %{version_arcanist}
-Requires:       phab-phabricator = %{version_phabricator}
-AutoReq:        no
-
-%description standalone-server
-Install phabricator to run all-in-one on one server.
 
 %package phabricator
 Summary:        Phabricator core
@@ -147,6 +134,8 @@ cp -r libphutil-%{commit_libphutil} ${DEST}/libphutil
 cp -r arcanist-%{commit_arcanist} ${DEST}/arcanist
 cp -r phabricator-%{commit_phabricator} ${DEST}/phabricator
 
+install %{SOURCE11} ${DEST}/phabricator/bin/phabricator_storage_upgrade_handler
+
 DEST_VAR=${RPM_BUILD_ROOT}%{prefix_var}
 mkdir -p ${DEST_VAR}/files  ${DEST_VAR}/diffusion ${DEST_VAR}/storage_dump
 
@@ -175,11 +164,6 @@ cp %{SOURCE8} \
 cp %{SOURCE9} \
   ${RPM_BUILD_ROOT}%{_unitdir}/phabricator_storage_dump@.timer
 %endif
-
-
-mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/sudoers.d
-cp %{SOURCE5} \
-  ${RPM_BUILD_ROOT}%{_sysconfdir}/sudoers.d/phabricator
 
 mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/logrotate.d
 cp %{SOURCE10} \
@@ -237,14 +221,7 @@ systemctl daemon-reload >/dev/null 2>&1 || :
 
 if [ $1 -ge 1 ]; then
   # Package upgrade, not uninstall
-  phabricator_state_before_storage_upgrade=$(systemctl is-active phabricator.service 2>/dev/null || :)
-
-  # this will stop phabricator.service if it is currently running
-  systemctl start phabricator_storage_upgrade@phabricator.service >/dev/null 2>&1 || :
-
-  if [ "$phabricator_state_before_storage_upgrade=" = "active" ]; then
-    systemctl start phabricator.service >/dev/null 2>&1 || :
-  fi
+  %{prefix}/pabricator/bin/phabricator_storage_upgrade_handler
 fi
 
 %systemd_postun storage_dump@.service phabricator_storage_dump@.timer
@@ -275,13 +252,6 @@ fi
 %{_unitdir}/phabricator_storage_dump@.timer
 %endif
 
-
-%files standalone-server
-%attr(0440,-,-) %{_sysconfdir}/sudoers.d/phabricator
-%dir %attr(2750, phabricator, phabricator) %{prefix_var}/diffusion
-%dir %attr(0700, apache, apache) %{prefix_var}/files
-
-
 %files arcanist
 %{prefix}/arcanist
 
@@ -289,3 +259,7 @@ fi
 %{prefix}/libphutil
 
 %changelog
+* Sun Jan 28 2018 Thomas Mueller <thomas@chaschperli.ch> - 2018.4-0.1.alpha8
+- Phabricator 2018.4 - upstream changelog:
+  https://secure.phabricator.com/w/changelog/2018.04/
+
