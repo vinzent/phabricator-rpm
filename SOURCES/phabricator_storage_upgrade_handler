@@ -1,0 +1,77 @@
+#!/bin/bash
+#
+# To run the `storage upgrade` command the phabricator services need to be
+# stopped. This also includes the webserver.
+#
+# This script analyzes the defined Conflicts of the storage upgrade systemd
+# oneshot service, checks the is-active state and restarts the active services
+# after running the storage upgrade command.
+#
+# To prevent doing anything here define the variable "DISABLED" in 
+# add /etc/sysconfig/phabricator_storage_upgrade_handler (value doesn't matter).
+#
+# There is also the STORAGE_NAMESPACES config which is a space separated list
+# of namespaces. It defaults to `phabricator` - which is normally the right
+# thing.
+#
+
+set -e
+set -u
+set -o pipefail
+
+cleanup() {
+  exitcode=$?
+
+  if [ "$exitcode" != "0" ]; then
+    echo "ERROR: unsuccessfull exitcode: $exitcode"
+  fi
+
+  exit $exitcode
+}
+
+trap cleanup EXIT
+
+if [ -e '/etc/sysconfig/phabricator_storage_upgrade_handler' ]; then
+  . /etc/sysconfig/phabricator_storage_upgrade_handler
+fi
+
+# ensure defaults
+DISABLED=${DISABELD:-}
+STORAGE_NAMESPACES=${STORAGE_NAMESPACES:-phabricator}
+
+list_conflicts() {
+  systemctl show --property=Conflicts phabricator_storage_upgrade@phabricator.service | \
+    sed 's/^Conflicts=//'
+}
+
+
+if [ -n "$DISABLED" ]; then
+  echo "INFO: disabled by configuration setting"
+  exit 0
+fi
+
+if [ -z "$STORAGE_NAMESPACES" ]; then
+  echo "ERROR: config setting STORAGE_NAMESPACES is empty"
+  exit -1
+fi
+
+
+services_to_restart=""
+
+for service in $(list_conflicts); do
+  # we only want to handle systemd services, not targets, timers, ...
+  grep -q '\.service$' <<<$service || continue
+
+  if systemctl is-active $service >/dev/null; then
+    services_to_restart="$services_to_restart $service"
+  fi
+done
+
+for namespace in $STORAGE_NAMESPACES; do
+  service_name="phabricator_storage_upgrade@${namespace}.service"
+  if ! systemctl start $service_name; then
+    echo "ERROR: failed to successfully run ${service_name}. Have a look at the service status."
+  fi
+done
+
+systemctl start $services_to_restart
