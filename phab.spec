@@ -38,7 +38,7 @@
 
 Name:           phab
 Version:        %{version_phabricator}
-Release:        0.1.alpha8%{?dist}
+Release:        0.2.alpha8%{?dist}
 Summary:        Phabricator meta-package
 BuildArch:      noarch
 AutoReq:        no
@@ -310,6 +310,9 @@ fi
 %{prefix}/libphutil
 
 %changelog
+* Thu Feb 01 2018 Thomas Mueller <thomas@chaschperli.ch> - 2018.4-0.2.alpha8
+- Added initial SELinux bits
+
 * Sun Jan 28 2018 Thomas Mueller <thomas@chaschperli.ch> - 2018.4-0.1.alpha8
 - Phabricator 2018.4 - upstream changelog:
   https://secure.phabricator.com/w/changelog/2018.04/
