@@ -1,0 +1,18 @@
+# target of /opt/phab/phabricator/bin/phd
+/opt/phab/phabricator/scripts/daemon/manage_daemons.php  -- gen_context(system_u:object_r:phabricator_exec_t,s0)
+/opt/phab/phabricator/scripts(/.*)?                         gen_context(system_u:object_r:bin_t,s0)
+
+# wrapper for /opt/phab/phabricator/scripts/ssh/ssh-auth.php
+/opt/phab/phabricator/bin/ssh-auth-wrapper               -- gen_context(system_u:object_r:phabricator_ssh_auth_exec_t,s0)
+# wrapper for /opt/phab/phabricator/bin/ssh-exec
+/opt/phab/phabricator/bin/ssh-exec-wrapper               -- gen_context(system_u:object_r:phabricator_exec_t,s0)
+/opt/phab/phabricator/bin(/.*)?                             gen_context(system_u:object_r:bin_t,s0)
+
+/opt/phab/phabricator/support/bin/git-http-backend       -- gen_context(system_u:object_r:phabricator_exec_t,s0)
+/opt/phab/phabricator/support/bin(/.*)?                     gen_context(system_u:object_r:bin_t,s0)
+/opt/phab/phabricator/webroot(/.*)?                         gen_context(system_u:object_r:httpd_sys_content_t,s0)
+
+/var/opt/phab/diffusion/[^/]+/hooks(/.*)?                   gen_context(system_u:object_r:phabricator_hooks_t,s0)
+/var/opt/phab(/.*)?                                         gen_context(system_u:object_r:phabricator_data_t,s0)
+
+/var/log/phab(/.*)?                                         gen_context(system_u:object_r:phabricator_log_t,s0)

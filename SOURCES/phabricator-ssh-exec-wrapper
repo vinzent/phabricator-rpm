@@ -1,0 +1,17 @@
+#!/bin/bash
+#
+# This file is called is the ssh forced-command defined
+# by ssh-auth.php (or here ssh-auth-wrapper).
+#
+# If using a no default php somewhow we need to set env vars.
+# This is why the /etc/sysconfig/phabricator is sourced.
+#
+# The file is also a SELinux entry point for the
+# phabricator_t domain.
+#
+
+if [ -e /etc/sysconfig/phabricator ]; then
+  . /etc/sysconfig/phabricator
+fi
+
+exec /opt/phab/phabricator/scripts/ssh/ssh-exec.php "$@"

@@ -1,0 +1,105 @@
+policy_module(phabricator,0.1.0)
+
+require {
+        type httpd_t;
+        type sshd_t;
+}
+
+type phabricator_t;
+type phabricator_exec_t;
+init_daemon_domain(phabricator_t, phabricator_exec_t)
+
+type phabricator_ssh_auth_t;
+type phabricator_ssh_auth_exec_t;
+application_domain(phabricator_ssh_auth_t, phabricator_ssh_auth_exec_t)
+role system_r types phabricator_ssh_auth_t;
+
+init_daemon_domain(phabricator_t, phabricator_exec_t)
+type phabricator_data_t;
+files_type(phabricator_data_t)
+
+# type for repo hook scripts, they need to be executable
+type phabricator_hooks_t;
+files_type(phabricator_hooks_t)
+
+type phabricator_log_t;
+logging_log_file(phabricator_log_t)
+
+type phabricator_tmp_t;
+files_tmp_file(phabricator_tmp_t)
+
+
+allow phabricator_t self:process { setsched setrlimit };
+allow phabricator_t self:unix_dgram_socket { create connect };
+allow phabricator_t self:udp_socket { create connect write read getattr };
+allow phabricator_t self:tcp_socket { connect create write read getattr getopt setopt shutdown };
+allow phabricator_t self:capability { setgid setuid sys_resource };
+allow phabricator_t self:netlink_route_socket { create getattr bind };
+allow phabricator_t self:netlink_audit_socket create;
+
+auth_domtrans_chkpwd(phabricator_t)
+logging_send_audit_msgs(phabricator_t)
+
+corenet_tcp_connect_ssh_port(phabricator_t)
+corenet_tcp_connect_ldap_port(phabricator_t)
+corenet_tcp_connect_http_port(phabricator_t)
+
+userdom_dontaudit_search_user_home_dirs(phabricator_t)
+
+sysnet_read_config(phabricator_t)
+
+corecmd_exec_bin(phabricator_t)
+kernel_read_system_state(phabricator_t)
+domain_read_all_domains_state(phabricator_t)
+
+manage_dirs_pattern(phabricator_t, phabricator_tmp_t, phabricator_tmp_t)
+manage_files_pattern(phabricator_t, phabricator_tmp_t, phabricator_tmp_t)
+files_tmp_filetrans(phabricator_t, phabricator_tmp_t, { file dir })
+
+manage_dirs_pattern(phabricator_t, phabricator_log_t, phabricator_log_t)
+manage_files_pattern(phabricator_t, phabricator_log_t, phabricator_log_t)
+
+manage_dirs_pattern(phabricator_t, phabricator_data_t, phabricator_data_t)
+manage_files_pattern(phabricator_t, phabricator_data_t, phabricator_data_t)
+manage_lnk_files_pattern(phabricator_t, phabricator_data_t, phabricator_data_t)
+files_var_lib_filetrans(phabricator_t, phabricator_data_t, dir)
+
+manage_dirs_pattern(phabricator_t, phabricator_hooks_t, phabricator_hooks_t)
+manage_files_pattern(phabricator_t, phabricator_hooks_t, phabricator_hooks_t)
+can_exec(phabricator_t, phabricator_hooks_t)
+filetrans_pattern(phabricator_t, phabricator_data_t, phabricator_hooks_t, dir, "hooks")
+
+ssh_exec(phabricator_t)
+ssh_sigchld(phabricator_t)
+
+sudo_exec(phabricator_t)
+
+miscfiles_read_generic_certs(phabricator_t)
+auth_read_passwd(phabricator_t)
+logging_send_syslog_msg(phabricator_t)
+
+mysql_search_db(phabricator_t)
+mysql_stream_connect(phabricator_t)
+
+
+# -------------------------------------------------------------
+# phabricator_ssh_auth_t
+# -------------------------------------------------------------
+
+corecmd_exec_bin(phabricator_ssh_auth_t)
+mysql_stream_connect(phabricator_ssh_auth_t)
+auth_read_passwd(phabricator_ssh_auth_t)
+kernel_read_system_state(phabricator_ssh_auth_t)
+
+# -------------------------------------------------------------
+# Domain transitions
+# -------------------------------------------------------------
+
+# Webservice
+domtrans_pattern(httpd_t,phabricator_exec_t,phabricator_t)
+
+# sshd executes AuthorizedKeysCommand
+domtrans_pattern(sshd_t,phabricator_ssh_auth_exec_t,phabricator_ssh_auth_t)
+
+# Allow ssh users to transition to phabricator_t
+unconfined_run_to(phabricator_t, phabricator_exec_t)

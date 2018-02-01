@@ -15,6 +15,8 @@
 %global prefix_log %{_localstatedir}/log/phab
 %global prefix_run %{prefix_var}
 
+%global selinux_variants targeted
+
 %if 0%{?rhel} && 0%{?rhel} <= 6
 # EL6 requires
 %global php_requires php php-cli php-process php-gd php-pecl-apc php-pecl-json php-mbstring php-mysql
@@ -56,10 +58,18 @@ Source8:        phabricator_storage_dump.unit
 Source9:        phabricator_storage_dump.timer
 Source10:       phabricator.logrotate
 Source11:       phabricator_storage_upgrade_handler
+Source12:       phabricator-ssh-auth-wrapper
+Source13:       phabricator-ssh-exec-wrapper
+Source14:       phabricator.te
+Source15:       phabricator.fc
 
 Requires:       phab-arcanist = %{version_arcanist}
 Requires:       phab-libphutil = %{version_libphutil}
 Requires:       phab-phabricator = %{version_phabricator}
+Requires:       selinux-policy >= %{_selinux_policy_version}
+Requires:       /usr/sbin/semodule, /sbin/restorecon, /sbin/fixfiles
+
+BuildRequires:  checkpolicy, selinux-policy-devel
 
 
 %description
@@ -123,8 +133,18 @@ tar -xzf %{SOURCE0}
 tar -xzf %{SOURCE1}
 tar -xzf %{SOURCE2}
 
+test -d SELinux || mkdir SELinux
+cp -p %{SOURCE14} %{SOURCE15} SELinux
+
 %build
-echo Nothing to build.
+cd SELinux
+for selinuxvariant in %{selinux_variants}
+do
+  make NAME=${selinuxvariant} -f /usr/share/selinux/devel/Makefile
+  mv phabricator.pp phabricator.pp.${selinuxvariant}
+  make NAME=${selinuxvariant} -f /usr/share/selinux/devel/Makefile clean
+done
+cd -
 
 %install
 DEST=${RPM_BUILD_ROOT}%{prefix}
@@ -135,6 +155,8 @@ cp -r arcanist-%{commit_arcanist} ${DEST}/arcanist
 cp -r phabricator-%{commit_phabricator} ${DEST}/phabricator
 
 install %{SOURCE11} ${DEST}/phabricator/bin/phabricator_storage_upgrade_handler
+install %{SOURCE12} ${DEST}/phabricator/bin/ssh-auth-wrapper
+install %{SOURCE13} ${DEST}/phabricator/bin/ssh-exec-wrapper
 
 DEST_VAR=${RPM_BUILD_ROOT}%{prefix_var}
 mkdir -p ${DEST_VAR}/files  ${DEST_VAR}/diffusion ${DEST_VAR}/storage_dump
@@ -169,6 +191,14 @@ mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/logrotate.d
 cp %{SOURCE10} \
   ${RPM_BUILD_ROOT}%{_sysconfdir}/logrotate.d/phab-phabricator
 
+for selinuxvariant in %{selinux_variants}
+do
+  install -d %{buildroot}%{_datadir}/selinux/${selinuxvariant}
+  install -p -m 644 SELinux/phabricator.pp.${selinuxvariant} \
+    %{buildroot}%{_datadir}/selinux/${selinuxvariant}/phabricator.pp
+  rm -f SELinux/phabricator.pp.${selinuxvariant}
+done
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -180,6 +210,15 @@ getent group phabricator >/dev/null || groupadd -r phabricator
 getent passwd phabricator >/dev/null || \
     useradd -r -g phabricator -d %{prefix_var} -s /sbin/nologin \
     -c "Daemon user for Phabricator" phabricator
+
+%post
+for selinuxvariant in %{selinux_variants}
+do
+  /usr/sbin/semodule -s ${selinuxvariant} -i \
+    %{_datadir}/selinux/${selinuxvariant}/phabricator.pp &> /dev/null || :
+done
+/sbin/fixfiles -R phab-phabricator restore || :
+/sbin/restorecon -Ri %{prefix_var} %{prefix_run} %{prefix_log} || :
 
 %post phabricator
 %if 0%{?rhel} && 0%{?rhel} <= 6
@@ -213,6 +252,16 @@ fi
 %systemd_preun phabricator.service phabricator_storage_upgrade@.service phabricator_storage_dump@.service phabricator_storage_dump@.timer
 %endif
 
+%postun
+if [ $1 -eq 0 ] ; then
+  for selinuxvariant in %{selinux_variants}
+  do
+    /usr/sbin/semodule -s ${selinuxvariant} -r phabricator &> /dev/null || :
+  done
+  /sbin/fixfiles -R phab-phabricator restore || :
+  /sbin/restorecon -Ri %{prefix_var} %{prefix_run} %{prefix_log}  &> /dev/null || :
+fi
+
 %postun phabricator
 %if 0%{?rhel} && 0%{?rhel} <= 6
   echo "nothing to do here in preun"
@@ -231,6 +280,8 @@ fi
 # ------------------------------------------------------------------
 # Files
 # ------------------------------------------------------------------
+%doc SELinux/*
+%{_datadir}/selinux/*/phabricator.pp
 
 %files phabricator
 %defattr(-,root,root,-)

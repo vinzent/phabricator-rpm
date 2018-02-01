@@ -1,0 +1,18 @@
+#!/bin/bash
+#
+# This file is called by sshd (AuthorizedKeysCommand).
+# If using a no default php somewhow we need to set env vars.
+# This is why the /etc/sysconfig/phabricator is sourced.
+#
+# The forced command is changed to bin/ssh-exec-wrapper
+# for the very same reason.
+#
+# The file is also a SELinux entry point for the
+# phabricator_ssh_auth_t domain.
+#
+
+if [ -e /etc/sysconfig/phabricator ]; then
+  . /etc/sysconfig/phabricator
+fi
+
+/opt/phab/phabricator/scripts/ssh/ssh-auth.php "$@" | sed 's|bin/ssh-exec|bin/ssh-exec-wrapper|g'
