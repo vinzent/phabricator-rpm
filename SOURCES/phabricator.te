@@ -1,4 +1,4 @@
-policy_module(phabricator,0.1.0)
+policy_module(phabricator,0.2.0)
 
 require {
         type httpd_t;
@@ -81,7 +81,6 @@ logging_send_syslog_msg(phabricator_t)
 mysql_search_db(phabricator_t)
 mysql_stream_connect(phabricator_t)
 
-
 # -------------------------------------------------------------
 # phabricator_ssh_auth_t
 # -------------------------------------------------------------
@@ -90,6 +89,12 @@ corecmd_exec_bin(phabricator_ssh_auth_t)
 mysql_stream_connect(phabricator_ssh_auth_t)
 auth_read_passwd(phabricator_ssh_auth_t)
 kernel_read_system_state(phabricator_ssh_auth_t)
+
+# -------------------------------------------------------------
+# httpd_t
+# -------------------------------------------------------------
+list_dirs_pattern(httpd_t, phabricator_data_t, phabricator_data_t)
+read_files_pattern(httpd_t, phabricator_data_t, phabricator_data_t)
 
 # -------------------------------------------------------------
 # Domain transitions

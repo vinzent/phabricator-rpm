@@ -10,7 +10,7 @@
 %global commit_phabricator 4c14dd1e8925677f407b5ef4f1bd268a7d460daf
 %global shortcommit_phabricator %(c=%{commit_phabricator}; echo ${c:0:7})
 
-%global version_selinux 0.1.0
+%global version_selinux 0.2.0
 
 %global prefix /opt/phab
 %global prefix_var %{_localstatedir}%{prefix}
