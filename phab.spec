@@ -1,13 +1,13 @@
-%global version_libphutil 2018.3
-%global commit_libphutil 53f01ac1ae7815bc55e8c1532fe3de12287c8e24
+%global version_libphutil 2018.5
+%global commit_libphutil fb082fb35626707d8620d5e486a03dbbd2c33019
 %global shortcommit_libphutil %(c=%{commit_libphutil}; echo ${c:0:7})
 
 %global version_arcanist 2018.3
 %global commit_arcanist 886f6e6360ac6069ca8b8af12f69523deee6feda
 %global shortcommit_arcanist %(c=%{commit_arcanist}; echo ${c:0:7})
 
-%global version_phabricator 2018.4
-%global commit_phabricator 4bf1bc256308153482fb1fcb1100b3dc99637d04
+%global version_phabricator 2018.5
+%global commit_phabricator 4c14dd1e8925677f407b5ef4f1bd268a7d460daf
 %global shortcommit_phabricator %(c=%{commit_phabricator}; echo ${c:0:7})
 
 %global prefix /opt/phab
@@ -31,7 +31,7 @@
 
 Name:           phab
 Version:        %{version_phabricator}
-Release:        0.2.alpha8%{?dist}
+Release:        0.3.alpha8%{?dist}
 Summary:        Phabricator meta-package
 BuildArch:      noarch
 AutoReq:        no
@@ -278,6 +278,10 @@ fi
 %{prefix}/libphutil
 
 %changelog
+* Wed Feb 07 2018 Thomas Mueller <thomas@chaschperli.ch> - 2018.5-0.3.alpha8
+- Update to 2018.5 Release - see
+  https://secure.phabricator.com/w/changelog/2018.05/
+
 * Thu Feb 01 2018 Thomas Mueller <thomas@chaschperli.ch> - 2018.4-0.2.alpha8
 - Added initial SELinux bits
 
