@@ -7,6 +7,7 @@ Before=phabricator.service
 Type=oneshot
 ExecStart=/opt/phab/phabricator/bin/storage upgrade --force --namespace %i
 User=phabricator
+EnvironmentFile=/etc/sysconfig/phab
 
 [Install]
 WantedBy=multi-user.target

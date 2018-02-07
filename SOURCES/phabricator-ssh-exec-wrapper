@@ -4,14 +4,14 @@
 # by ssh-auth.php (or here ssh-auth-wrapper).
 #
 # If using a no default php somewhow we need to set env vars.
-# This is why the /etc/sysconfig/phabricator is sourced.
+# This is why the /etc/sysconfig/phab is sourced.
 #
 # The file is also a SELinux entry point for the
 # phabricator_t domain.
 #
 
-if [ -e /etc/sysconfig/phabricator ]; then
-  . /etc/sysconfig/phabricator
+if [ -e /etc/sysconfig/phab ]; then
+  . /etc/sysconfig/phab
 fi
 
 exec /opt/phab/phabricator/scripts/ssh/ssh-exec.php "$@"

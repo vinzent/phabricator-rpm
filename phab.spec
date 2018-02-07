@@ -33,7 +33,7 @@
 
 Name:           phab
 Version:        %{version_phabricator}
-Release:        0.4.beta%{?dist}
+Release:        0.5.beta%{?dist}
 Summary:        Phabricator meta-package
 BuildArch:      noarch
 AutoReq:        no
@@ -57,6 +57,7 @@ Source12:       phabricator-ssh-auth-wrapper
 Source13:       phabricator-ssh-exec-wrapper
 Source14:       phabricator.te
 Source15:       phabricator.fc
+Source16:       phabricator.sysconfig
 
 Requires:       phab-arcanist = %{version_arcanist}
 Requires:       phab-libphutil = %{version_libphutil}
@@ -168,11 +169,6 @@ mkdir -p ${RPM_BUILD_ROOT}%{prefix_log}/phd
 
 mkdir -p ${RPM_BUILD_ROOT}%{prefix_run}/phd
 
-%if 0%{?rhel} && 0%{?rhel} <= 6
-mkdir -p ${RPM_BUILD_ROOT}%{_initddir}
-cp %{SOURCE3} \
-  ${RPM_BUILD_ROOT}%{_initddir}/phabricator
-%else
 mkdir -p ${RPM_BUILD_ROOT}%{_unitdir}
 cp %{SOURCE6} \
   ${RPM_BUILD_ROOT}%{_unitdir}/phabricator.service
@@ -182,11 +178,14 @@ cp %{SOURCE8} \
   ${RPM_BUILD_ROOT}%{_unitdir}/phabricator_storage_dump@.service
 cp %{SOURCE9} \
   ${RPM_BUILD_ROOT}%{_unitdir}/phabricator_storage_dump@.timer
-%endif
 
 mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/logrotate.d
 cp %{SOURCE10} \
   ${RPM_BUILD_ROOT}%{_sysconfdir}/logrotate.d/phab-phabricator
+
+install -d ${RPM_BUILD_ROOT}%{_sysconfdir}/sysconfig
+install -m 644 %{SOURCE16} \
+  ${RPM_BUILD_ROOT}%{_sysconfdir}/sysconfig/phab
 
 for selinuxvariant in %{selinux_variants}
 do
@@ -270,6 +269,7 @@ fi
 # Files
 # ------------------------------------------------------------------
 %{_unitdir}/phabricator*
+%config(noreplace) %{_sysconfdir}/sysconfig/phab
 
 %files selinux
 %{_datadir}/selinux/*/phabricator.pp

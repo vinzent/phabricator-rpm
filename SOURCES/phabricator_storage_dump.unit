@@ -6,6 +6,7 @@ Type=oneshot
 ExecStart=/opt/phab/phabricator/bin/storage dump --namespace %i --compress --output /var/opt/phab/storage_dump/%i.sql.gz --overwrite
 User=phabricator
 UMask=0027
+EnvironmentFile=/etc/sysconfig/phab
 
 [Install]
 WantedBy=multi-user.target

@@ -1,0 +1,6 @@
+# Env settings used in systemd unit and script of  phab-* packages
+#
+# This file is read by systemd - it's not a shell script
+
+# Phabricator requires git-http-backend in PATH
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/usr/libexec/git-core

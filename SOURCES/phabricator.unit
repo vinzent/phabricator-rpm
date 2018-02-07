@@ -5,13 +5,13 @@ Description=Phabricator Daemons
 
 [Service]
 Type=forking
-# Phabricator requires git-http-backend in PATH
-Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/usr/libexec/git-core"
+EnvironmentFile=/etc/sysconfig/phab
 ExecStart=/opt/phab/phabricator/bin/phd start
 ExecStop=/opt/phab/phabricator/bin/phd stop
 User=phabricator
 UMask=0027
 Restart=on-failure
+
 
 [Install]
 WantedBy=multi-user.target
