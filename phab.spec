@@ -33,7 +33,7 @@
 
 Name:           phab
 Version:        %{version_phabricator}
-Release:        0.5.beta%{?dist}
+Release:        0.6.beta%{?dist}
 Summary:        Phabricator meta-package
 BuildArch:      noarch
 AutoReq:        no
@@ -58,6 +58,7 @@ Source13:       phabricator-ssh-exec-wrapper
 Source14:       phabricator.te
 Source15:       phabricator.fc
 Source16:       phabricator.sysconfig
+Source17:       git-http-backend-wrapper
 
 Requires:       phab-arcanist = %{version_arcanist}
 Requires:       phab-libphutil = %{version_libphutil}
@@ -155,6 +156,7 @@ cp -r phabricator-%{commit_phabricator} ${DEST}/phabricator
 install %{SOURCE11} ${DEST}/phabricator/bin/phabricator_storage_upgrade_handler
 install %{SOURCE12} ${DEST}/phabricator/bin/ssh-auth-wrapper
 install %{SOURCE13} ${DEST}/phabricator/bin/ssh-exec-wrapper
+install %{SOURCE17} ${DEST}/phabricator/support/bin/git-http-backend
 
 DEST_VAR=${RPM_BUILD_ROOT}%{prefix_var}
 mkdir -p ${DEST_VAR}/files  ${DEST_VAR}/diffusion ${DEST_VAR}/storage_dump

@@ -1,0 +1,11 @@
+#!/bin/bash
+#
+# This wrapper serves as entry point for a 
+# selinux domain transition.
+#
+
+if [ -e /etc/sysconfig/phab ]; then
+  . /etc/sysconfig/phab
+fi
+
+exec git-http-backend "$@"
