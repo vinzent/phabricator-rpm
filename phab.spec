@@ -33,7 +33,7 @@
 
 Name:           phab
 Version:        %{version_phabricator}
-Release:        0.6.beta%{?dist}
+Release:        1.0.0%{?dist}
 Summary:        Phabricator meta-package
 BuildArch:      noarch
 AutoReq:        no
