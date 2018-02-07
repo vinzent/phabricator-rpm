@@ -17,12 +17,6 @@
 
 %global selinux_variants targeted
 
-%if 0%{?rhel} && 0%{?rhel} <= 6
-# EL6 requires
-%global php_requires php php-cli php-process php-gd php-pecl-apc php-pecl-json php-mbstring php-mysql
-%global php_requires_arcanist php-cli
-%global mysqld_requires mysql-server
-%else
 %if 0%{?rhel} && 0%{?rhel} == 7
 # EL7 requires
 %global php_requires rh-php71-php rh-php71-php-cli rh-php71-php-process rh-php71-php-gd rh-php71-php-pecl-apcu rh-php71-php-json rh-php71-php-mbstring rh-php71-php-mysqlnd
@@ -33,7 +27,6 @@
 %global php_requires php php-cli php-process php-gd php-pecl-apcu php-json php-mbstring php-mysqlnd
 %global php_requires_arcanist php-cli
 %global mysqld_requires mariadb-server
-%endif
 %endif
 
 Name:           phab
@@ -68,9 +61,10 @@ Requires:       phab-libphutil = %{version_libphutil}
 Requires:       phab-phabricator = %{version_phabricator}
 Requires:       selinux-policy >= %{_selinux_policy_version}
 Requires:       /usr/sbin/semodule, /sbin/restorecon, /sbin/fixfiles
+%{?systemd_requires}
 
+BuildRequires:  systemd
 BuildRequires:  checkpolicy, selinux-policy-devel
-
 
 %description
 Phabricator is an open source collection of web applications which help
@@ -81,17 +75,9 @@ This is the just the code withouth any required dependencies.
 %package phabricator
 Summary:        Phabricator core
 Version:        %{version_phabricator}
-# Init systemd
-%if 0%{?rhel} && 0%{?rhel} <= 6
-Requires:       chkconfig initscripts
-%else
-BuildRequires:  systemd
-%{?systemd_requires}
-%endif
 Requires:       php-cli
 Requires:       shadow-utils
 Requires:       phab-libphutil = %{version_libphutil}
-Requires:       phab-arcanist = %{version_arcanist}
 AutoReq:        no
 
 %description phabricator
@@ -220,13 +206,9 @@ done
 /sbin/fixfiles -R phab-phabricator restore || :
 /sbin/restorecon -Ri %{prefix_var} %{prefix_run} %{prefix_log} || :
 
-%post phabricator
-%if 0%{?rhel} && 0%{?rhel} <= 6
-/sbin/chkconfig --add phabricator
-%else
 %systemd_post phabricator.service phabricator_storage_upgrade@.service phabricator_storage_dump@.service phabricator_storage_dump@.timer
-%endif
 
+%post phabricator
 CFG=%{prefix}/phabricator/bin/config
 if ! [ -e %{prefix}/phabricator/conf/local/local.json ]; then
   $CFG set repository.default-local-path %{prefix_var}/diffusion
@@ -245,12 +227,8 @@ if ! [ -e %{prefix}/phabricator/conf/local/local.json ]; then
     $(dd if=/dev/urandom bs=128 count=1 2>/dev/null |  base64 | grep -Eo '[a-zA-Z0-9]' | head -30 | tr -d '\n')
 fi
 
-%preun phabricator
-%if 0%{?rhel} && 0%{?rhel} <= 6
-  echo "nothing to do here in preun"
-%else
+%preun
 %systemd_preun phabricator.service phabricator_storage_upgrade@.service phabricator_storage_dump@.service phabricator_storage_dump@.timer
-%endif
 
 %postun
 if [ $1 -eq 0 ] ; then
@@ -262,10 +240,10 @@ if [ $1 -eq 0 ] ; then
   /sbin/restorecon -Ri %{prefix_var} %{prefix_run} %{prefix_log}  &> /dev/null || :
 fi
 
-%postun phabricator
-%if 0%{?rhel} && 0%{?rhel} <= 6
-  echo "nothing to do here in preun"
-%else
+%systemd_postun phabricator_storage_upgrade@.service phabricator_storage_dump@.service phabricator_storage_dump@.timer
+
+%triggerpostun -- phabricator
+
 systemctl daemon-reload >/dev/null 2>&1 || :
 
 if [ $1 -ge 1 ]; then
@@ -273,8 +251,6 @@ if [ $1 -ge 1 ]; then
   %{prefix}/phabricator/bin/phabricator_storage_upgrade_handler
 fi
 
-%systemd_postun storage_dump@.service phabricator_storage_dump@.timer
-%endif
 
 %files
 # ------------------------------------------------------------------
@@ -282,6 +258,7 @@ fi
 # ------------------------------------------------------------------
 %doc SELinux/*
 %{_datadir}/selinux/*/phabricator.pp
+%{_unitdir}/phabricator*
 
 %files phabricator
 %defattr(-,root,root,-)
@@ -293,15 +270,6 @@ fi
 %dir %attr(0750, phabricator, phabricator) %{prefix_var}/phd
 %dir %attr(0750, phabricator, phabricator) %{prefix_log}/phd
 %dir %attr(0750, phabricator, phabricator) %{prefix_run}/phd
-
-%if 0%{?rhel} && 0%{?rhel} <= 6
-%attr(0755,-,-) %{_initddir}/phabricator
-%else
-%{_unitdir}/phabricator.service
-%{_unitdir}/phabricator_storage_upgrade@.service
-%{_unitdir}/phabricator_storage_dump@.service
-%{_unitdir}/phabricator_storage_dump@.timer
-%endif
 
 %files arcanist
 %{prefix}/arcanist
