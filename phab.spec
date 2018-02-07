@@ -33,7 +33,7 @@
 
 Name:           phab
 Version:        %{version_phabricator}
-Release:        0.3.alpha8%{?dist}
+Release:        0.4.beta%{?dist}
 Summary:        Phabricator meta-package
 BuildArch:      noarch
 AutoReq:        no
@@ -246,7 +246,7 @@ fi
 %postun
 %systemd_postun phabricator_storage_upgrade@.service phabricator_storage_dump@.service phabricator_storage_dump@.timer
 
-%triggerpostun -- phabricator
+%triggerpostun -- phab-phabricator
 
 systemctl daemon-reload >/dev/null 2>&1 || :
 
