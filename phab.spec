@@ -10,6 +10,8 @@
 %global commit_phabricator 4c14dd1e8925677f407b5ef4f1bd268a7d460daf
 %global shortcommit_phabricator %(c=%{commit_phabricator}; echo ${c:0:7})
 
+%global version_selinux 0.1.0
+
 %global prefix /opt/phab
 %global prefix_var %{_localstatedir}%{prefix}
 %global prefix_log %{_localstatedir}/log/phab
@@ -59,8 +61,7 @@ Source15:       phabricator.fc
 Requires:       phab-arcanist = %{version_arcanist}
 Requires:       phab-libphutil = %{version_libphutil}
 Requires:       phab-phabricator = %{version_phabricator}
-Requires:       selinux-policy >= %{_selinux_policy_version}
-Requires:       /usr/sbin/semodule, /sbin/restorecon, /sbin/fixfiles
+Requires:       phab-selinux >= %{version_selinux}
 %{?systemd_requires}
 
 BuildRequires:  systemd
@@ -71,6 +72,16 @@ Phabricator is an open source collection of web applications which help
 software companies build better software.
 
 This is the just the code withouth any required dependencies.
+
+%package selinux
+Summary:        Phabricator selinux policy
+Version:        %{version_selinux}
+Requires:       selinux-policy >= %{_selinux_policy_version}
+Requires:       /usr/sbin/semodule, /sbin/restorecon, /sbin/fixfiles
+AutoReq:        no
+
+%description selinux
+SELinux policy for phab-* packages
 
 %package phabricator
 Summary:        Phabricator core
@@ -85,7 +96,7 @@ Phabricator is an open source collection of web applications which help
 software companies build better software.
 
 %package arcanist
-Summary:        command-line interface to Phabricator
+Summary:        command-line intselinuxerface to Phabricator
 Version:        %{version_arcanist}
 Requires:       %{php_requires_arcanist}
 Requires:       phab-libphutil = %{version_libphutil}
@@ -198,6 +209,9 @@ getent passwd phabricator >/dev/null || \
     -c "Daemon user for Phabricator" phabricator
 
 %post
+%systemd_post phabricator.service phabricator_storage_upgrade@.service phabricator_storage_dump@.service phabricator_storage_dump@.timer
+
+%post selinux
 for selinuxvariant in %{selinux_variants}
 do
   /usr/sbin/semodule -s ${selinuxvariant} -i \
@@ -206,7 +220,6 @@ done
 /sbin/fixfiles -R phab-phabricator restore || :
 /sbin/restorecon -Ri %{prefix_var} %{prefix_run} %{prefix_log} || :
 
-%systemd_post phabricator.service phabricator_storage_upgrade@.service phabricator_storage_dump@.service phabricator_storage_dump@.timer
 
 %post phabricator
 CFG=%{prefix}/phabricator/bin/config
@@ -231,15 +244,6 @@ fi
 %systemd_preun phabricator.service phabricator_storage_upgrade@.service phabricator_storage_dump@.service phabricator_storage_dump@.timer
 
 %postun
-if [ $1 -eq 0 ] ; then
-  for selinuxvariant in %{selinux_variants}
-  do
-    /usr/sbin/semodule -s ${selinuxvariant} -r phabricator &> /dev/null || :
-  done
-  /sbin/fixfiles -R phab-phabricator restore || :
-  /sbin/restorecon -Ri %{prefix_var} %{prefix_run} %{prefix_log}  &> /dev/null || :
-fi
-
 %systemd_postun phabricator_storage_upgrade@.service phabricator_storage_dump@.service phabricator_storage_dump@.timer
 
 %triggerpostun -- phabricator
@@ -251,14 +255,25 @@ if [ $1 -ge 1 ]; then
   %{prefix}/phabricator/bin/phabricator_storage_upgrade_handler
 fi
 
+%postun selinux
+if [ $1 -eq 0 ] ; then
+  for selinuxvariant in %{selinux_variants}
+  do
+    /usr/sbin/semodule -s ${selinuxvariant} -r phabricator &> /dev/null || :
+  done
+  /sbin/fixfiles -R phab-phabricator restore || :
+  /sbin/restorecon -Ri %{prefix_var} %{prefix_run} %{prefix_log}  &> /dev/null || :
+fi
 
 %files
 # ------------------------------------------------------------------
 # Files
 # ------------------------------------------------------------------
-%doc SELinux/*
-%{_datadir}/selinux/*/phabricator.pp
 %{_unitdir}/phabricator*
+
+%files selinux
+%{_datadir}/selinux/*/phabricator.pp
+%doc SELinux/*
 
 %files phabricator
 %defattr(-,root,root,-)
