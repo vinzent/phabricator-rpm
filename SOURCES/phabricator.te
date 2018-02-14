@@ -81,6 +81,8 @@ logging_send_syslog_msg(phabricator_t)
 mysql_search_db(phabricator_t)
 mysql_stream_connect(phabricator_t)
 
+mta_send_mail(phabricator_t)
+
 # -------------------------------------------------------------
 # phabricator_ssh_auth_t
 # -------------------------------------------------------------

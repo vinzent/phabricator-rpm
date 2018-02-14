@@ -10,7 +10,7 @@
 %global commit_phabricator 708acce9275ac95a579868ca61dd2a66766019c3
 %global shortcommit_phabricator %(c=%{commit_phabricator}; echo ${c:0:7})
 
-%global version_selinux 0.2.0
+%global version_selinux 0.3.0
 
 %global prefix /opt/phab
 %global prefix_var %{_localstatedir}%{prefix}
@@ -33,7 +33,7 @@
 
 Name:           phab
 Version:        %{version_phabricator}
-Release:        1.0.0%{?dist}
+Release:        1.0.1%{?dist}
 Summary:        Phabricator meta-package
 BuildArch:      noarch
 AutoReq:        no
@@ -295,6 +295,9 @@ fi
 %{prefix}/libphutil
 
 %changelog
+* Wed Feb 14 2018 Thomas Mueller <thomas@chaschperli.ch> - 2018.6-1.0.1
+- selinux: Allow phabricator_t to send mails
+
 * Wed Feb 14 2018 Thomas Mueller <thomas@chaschperli.ch> - 2018.6-1.0.0
 - Update to 2018.6 Release - see
   https://secure.phabricator.com/w/changelog/2018.06/
