@@ -1,13 +1,13 @@
-%global version_libphutil 2018.5
-%global commit_libphutil fb082fb35626707d8620d5e486a03dbbd2c33019
+%global version_libphutil 2018.6
+%global commit_libphutil fd9060c5a1efca58feb4b0f8fdf77a325a4e7a2e
 %global shortcommit_libphutil %(c=%{commit_libphutil}; echo ${c:0:7})
 
-%global version_arcanist 2018.3
-%global commit_arcanist 886f6e6360ac6069ca8b8af12f69523deee6feda
+%global version_arcanist 2018.6
+%global commit_arcanist 22b0893473ae5d3b2236254677cf027719af4528
 %global shortcommit_arcanist %(c=%{commit_arcanist}; echo ${c:0:7})
 
-%global version_phabricator 2018.5
-%global commit_phabricator 4c14dd1e8925677f407b5ef4f1bd268a7d460daf
+%global version_phabricator 2018.6
+%global commit_phabricator 708acce9275ac95a579868ca61dd2a66766019c3
 %global shortcommit_phabricator %(c=%{commit_phabricator}; echo ${c:0:7})
 
 %global version_selinux 0.2.0
@@ -295,6 +295,10 @@ fi
 %{prefix}/libphutil
 
 %changelog
+* Wed Feb 14 2018 Thomas Mueller <thomas@chaschperli.ch> - 2018.6-1.0.0
+- Update to 2018.6 Release - see
+  https://secure.phabricator.com/w/changelog/2018.06/
+
 * Wed Feb 07 2018 Thomas Mueller <thomas@chaschperli.ch> - 2018.5-0.3.alpha8
 - Update to 2018.5 Release - see
   https://secure.phabricator.com/w/changelog/2018.05/
