@@ -1,13 +1,13 @@
-%global version_libphutil 2018.6
-%global commit_libphutil fd9060c5a1efca58feb4b0f8fdf77a325a4e7a2e
+%global version_libphutil 2018.7
+%global commit_libphutil 6d394d4dab71a3c39cb6136ad112c134aa900ac8
 %global shortcommit_libphutil %(c=%{commit_libphutil}; echo ${c:0:7})
 
-%global version_arcanist 2018.6
-%global commit_arcanist 22b0893473ae5d3b2236254677cf027719af4528
+%global version_arcanist 2018.7
+%global commit_arcanist 8fe1d7701e5daa3b7c8d96847fa335c0fbf66816
 %global shortcommit_arcanist %(c=%{commit_arcanist}; echo ${c:0:7})
 
-%global version_phabricator 2018.6
-%global commit_phabricator 708acce9275ac95a579868ca61dd2a66766019c3
+%global version_phabricator 2018.7
+%global commit_phabricator 33b77e4abf9ea9abf1ad8f62880f0f140a015008
 %global shortcommit_phabricator %(c=%{commit_phabricator}; echo ${c:0:7})
 
 %global version_selinux 0.3.0
@@ -295,6 +295,9 @@ fi
 %{prefix}/libphutil
 
 %changelog
+* Wed Feb 21 2018 Thomas Mueller <thomas@chaschperli.ch> - 2018.7-1.0.1
+- Upgrade to 2018.7 - see https://secure.phabricator.com/w/changelog/2018.07/
+
 * Wed Feb 14 2018 Thomas Mueller <thomas@chaschperli.ch> - 2018.6-1.0.1
 - selinux: Allow phabricator_t to send mails
 
