@@ -1,4 +1,4 @@
-policy_module(phabricator,0.2.0)
+policy_module(phabricator,0.4.0)
 
 require {
         type httpd_t;
@@ -21,6 +21,11 @@ files_type(phabricator_data_t)
 # type for repo hook scripts, they need to be executable
 type phabricator_hooks_t;
 files_type(phabricator_hooks_t)
+
+# type for data-path referenced by storage.local-disk.path
+# config option. needs to be read/writeable by webserver.
+type phabricator_files_t;
+files_type(phabricator_files_t)
 
 type phabricator_log_t;
 logging_log_file(phabricator_log_t)
@@ -69,6 +74,9 @@ manage_files_pattern(phabricator_t, phabricator_hooks_t, phabricator_hooks_t)
 can_exec(phabricator_t, phabricator_hooks_t)
 filetrans_pattern(phabricator_t, phabricator_data_t, phabricator_hooks_t, dir, "hooks")
 
+manage_dirs_pattern(phabricator_t, phabricator_files_t, phabricator_files_t)
+manage_files_pattern(phabricator_t, phabricator_files_t, phabricator_files_t)
+
 ssh_exec(phabricator_t)
 ssh_sigchld(phabricator_t)
 
@@ -97,6 +105,9 @@ kernel_read_system_state(phabricator_ssh_auth_t)
 # -------------------------------------------------------------
 list_dirs_pattern(httpd_t, phabricator_data_t, phabricator_data_t)
 read_files_pattern(httpd_t, phabricator_data_t, phabricator_data_t)
+
+manage_dirs_pattern(httpd_t, phabricator_files_t, phabricator_files_t)
+manage_files_pattern(httpd_t, phabricator_files_t, phabricator_files_t)
 
 # -------------------------------------------------------------
 # Domain transitions

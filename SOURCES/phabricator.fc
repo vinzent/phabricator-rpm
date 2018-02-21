@@ -12,6 +12,7 @@
 /opt/phab/phabricator/support/bin(/.*)?                     gen_context(system_u:object_r:bin_t,s0)
 /opt/phab/phabricator/webroot(/.*)?                         gen_context(system_u:object_r:httpd_sys_content_t,s0)
 
+/var/opt/phab/files(/.*)?                                   gen_context(system_u:object_r:phabricator_files_t,s0)
 /var/opt/phab/diffusion/[^/]+/hooks(/.*)?                   gen_context(system_u:object_r:phabricator_hooks_t,s0)
 /var/opt/phab(/.*)?                                         gen_context(system_u:object_r:phabricator_data_t,s0)
 
