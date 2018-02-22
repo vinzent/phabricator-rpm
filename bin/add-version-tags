@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -u
+set -e
+set -o pipefail
+
+LANG=C
+
+repos="$@"
+
+git_log_5_latest_merges() {
+  local repo=$1
+  git log --merges -n5 --format="%H %s" ${repo}/stable
+}
+
+reformat_git_log_to_git_tag_cmd() {
+  local tag_prefix=$1
+  sed -E "s/^([^ ]+)(.* Promote )([^ ]+) Week ([^ ]+)/git tag -a -m \"Promote \\3 Week \\4\" ${tag_prefix}-\\3.\\4 \\1/"
+}
+
+for repo in $repos; do
+  # parse latest merges for "Promote $YYYY Week $w" and create a $YYYY.$w tag
+  while read line; do
+    eval "$line" || true
+  done <<<$(git_log_5_latest_merges ${repo} | reformat_git_log_to_git_tag_cmd ${repo})
+done

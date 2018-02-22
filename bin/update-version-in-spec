@@ -1,0 +1,12 @@
+#!/bin/bash
+
+package=$1
+version=$2
+commit=$3
+
+# %global version_libphutil 2018.7
+# %global commit_libphutil 6d394d4dab71a3c39cb6136ad112c134aa900ac8
+
+
+sed -i "s/^%global version_${package} .*/%global version_${package} ${version}/" phab.spec
+sed -i "s/^%global commit_${package} .*/%global commit_${package} ${commit}/" phab.spec

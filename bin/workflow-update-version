@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -e
+set -u
+set -o pipefail
+
+export PATH="$(dirname $0):$PATH"
+
+repos="libphutil arcanist phabricator"
+
+git fetch --multiple $repos
+
+add-version-tags $repos
+
+for repo in $repos; do
+  eval "$(print-version-vars ${repo}/stable)"
+  update-version-in-spec ${repo} $version $commithash
+done

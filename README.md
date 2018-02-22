@@ -1,9 +1,18 @@
 
 # phabricator-rpm
 
-![copr build status](https://copr.fedorainfracloud.org/coprs/vinzentm/phabricator/package/phabricator/status_image/last_build.png)
-
 Phabricator, libphutil and arcanist RPM's for Fedora, CentOS and RHEL.
+
+The package is based on the stable branches. Version is generated from
+"Promote YYYY Week N" merge commit message. The third number
+is the "commit count since last Promote".
+
+## What is where?
+
+* The application is here: /opt/phab/{libphutil,arcanist,phabricator}
+* Phabricator local config: /opt/phab/phabricator/config/local/local.json
+  (to be edited with /opt/phab/phabricator/bin/config)
+* Default path for data is /var/opt/phab/\*
 
 ## Limitations
 
@@ -16,12 +25,6 @@ Phabricator, libphutil and arcanist RPM's for Fedora, CentOS and RHEL.
 * No httpd config is provided - too many possibilities how it could be
   integrated.
 
-## What is where?
-
-* The application is here: /opt/phab/{libphutil,arcanist,phabricator}
-* Phabricator local config: /opt/phab/phabricator/config/local/local.json
-  (to be edited with /opt/phab/phabricator/bin/config)
-* Default path for data is /var/opt/phab/\*
 
 ## Quick start
 

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -u
+set -e
+set -o pipefail
+
+commit_ish=$1
+
+git describe --long $commit_ish | \
+  sed -r 's/^([^\-]+)-([^\-]+)-([0-9]+).*/repo=\1\nversion=\2.\3/'
+
+echo "commithash=$(git show-ref $commit_ish | cut -f1 -d' ')"
+
