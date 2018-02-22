@@ -8,6 +8,13 @@ export PATH="$(dirname $0):$PATH"
 
 repos="libphutil arcanist phabricator"
 
+if [ "$(git status --porcelain | wc -l)" != "0" ]; then
+  echo "ERROR: unclean git workspace - check git status"
+  exit 1
+fi
+
+git checkout master
+
 git fetch --multiple $repos
 
 add-version-tags $repos
@@ -16,3 +23,10 @@ for repo in $repos; do
   eval "$(print-version-vars ${repo}/stable)"
   update-version-in-spec ${repo} $version $commithash
 done
+
+if git status --porcelain | grep -q "M phab.spec"; then
+  git add phab.spec
+  git commit -m "Auto update to latest stable upstream version"
+  git push
+fi
+
