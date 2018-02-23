@@ -2,4 +2,5 @@
 
 for repo in libphutil arcanist phabricator; do
   git remote add ${repo} git@github.com:phacility/${repo}.git
+  git fetch ${repo}
 done
