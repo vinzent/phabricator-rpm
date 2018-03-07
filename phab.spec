@@ -6,8 +6,8 @@
 %global commit_arcanist 8fe1d7701e5daa3b7c8d96847fa335c0fbf66816
 %global shortcommit_arcanist %(c=%{commit_arcanist}; echo ${c:0:7})
 
-%global version_phabricator 2018.9.0
-%global commit_phabricator ae7236c7a413339c7c30303a59895bccb08d47e4
+%global version_phabricator 2018.9.4
+%global commit_phabricator 18708bb59a72d0936a7da22654a60aa283123c26
 %global shortcommit_phabricator %(c=%{commit_phabricator}; echo ${c:0:7})
 
 %global version_selinux 0.4.0
