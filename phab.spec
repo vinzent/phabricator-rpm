@@ -2,12 +2,12 @@
 %global commit_libphutil 47cfa511ca6782df13c459fdd212606f091a44ec
 %global shortcommit_libphutil %(c=%{commit_libphutil}; echo ${c:0:7})
 
-%global version_arcanist 2018.10.0
-%global commit_arcanist 7b6a9a93f4a4991b5173a2e9a1b2d8e4f630405f
+%global version_arcanist 2018.13.0
+%global commit_arcanist c8b716c4a848d2214f73e0a121eed1a2aade818a
 %global shortcommit_arcanist %(c=%{commit_arcanist}; echo ${c:0:7})
 
-%global version_phabricator 2018.12.1
-%global commit_phabricator 5e710959bed93b75f239821b739e55d0b8a63122
+%global version_phabricator 2018.13.0
+%global commit_phabricator 126f7f0d561c184bcfdc703938696f3edab751d8
 %global shortcommit_phabricator %(c=%{commit_phabricator}; echo ${c:0:7})
 
 %global version_selinux 0.4.0
